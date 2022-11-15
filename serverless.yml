@@ -1,0 +1,60 @@
+org: simdav26
+app: prueba-tecnica
+service: prueba-tecnica
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action: 
+            - 'dynamodb:*'
+          Resource:
+            - arn:aws:dynamodb:us-east-1:613859881893:table/CardsTable
+
+functions:
+  hello:
+    handler: src/handler.main
+    events:
+      - httpApi:
+          path: /
+          method: get
+  
+  createToken:
+    handler: src/controllers/card-controller.createToken
+    events:
+      - httpApi:
+          path: /create-token
+          method: post
+  
+
+  findCardInfo:
+    handler: src/controllers/card-controller.findCardInfo
+    events:
+      - httpApi:
+          path: /find-card-info
+          method: post
+
+
+
+plugins:
+  - serverless-plugin-typescript
+
+
+
+resources:
+  Resources:
+    CardsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        TableName: CardsTable
